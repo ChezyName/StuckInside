@@ -48,6 +48,11 @@ void AStuckInsideCharacter::BeginPlay()
 //////////////////////////////////////////////////////////////////////////
 // Input
 
+void AStuckInsideCharacter::onFlashlightToggle_Implementation()
+{
+	onFlashlightToggleBP();
+}
+
 void AStuckInsideCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// set up gameplay key bindings
@@ -144,4 +149,5 @@ void AStuckInsideCharacter::ToggleFlashlight_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(-1,1,FColor::Red,"Toggling Flashlight!");
 	Flashlight->SetVisibility(!Flashlight->IsVisible());
+	onFlashlightToggle();
 }

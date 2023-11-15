@@ -68,6 +68,9 @@ protected:
 
 	UFUNCTION(Server,Reliable)
 	void ToggleFlashlight();
+
+	UFUNCTION(NetMulticast,Reliable)
+	void onFlashlightToggle();
 	
 protected:
 	// APawn interface
@@ -86,6 +89,9 @@ public:
 	USkeletalMeshComponent* GetMesh() const { return GlobalMesh; }
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void onFlashlightToggleBP();
 
 };
 
