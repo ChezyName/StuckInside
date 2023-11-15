@@ -35,7 +35,7 @@ AStuckInsideCharacter::AStuckInsideCharacter()
 	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
 	Flashlight->Activate();
 	Flashlight->SetIsReplicated(true);
-	Flashlight->SetupAttachment(RootComponent);
+	Flashlight->SetupAttachment(FirstPersonCameraComponent);
 }
 
 void AStuckInsideCharacter::BeginPlay()
