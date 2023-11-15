@@ -25,6 +25,7 @@ AStuckInsideCharacter::AStuckInsideCharacter()
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f)); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
+	FirstPersonCameraComponent->SetIsReplicated(true);
 
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	GlobalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
@@ -56,10 +57,8 @@ void AStuckInsideCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	// Bind fire event
-	//PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AStuckInsideCharacter::OnFire);
-
-	//PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AStuckInsideCharacter::OnResetVR);
+	// Bind Other Events
+	PlayerInputComponent->BindAction("Flashlight", IE_Pressed, this, &AStuckInsideCharacter::ToggleFlashlight);
 
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &AStuckInsideCharacter::MoveForward);
@@ -139,4 +138,10 @@ void AStuckInsideCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AStuckInsideCharacter::ToggleFlashlight_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1,1,FColor::Red,"Toggling Flashlight!");
+	Flashlight->SetVisibility(!Flashlight->IsVisible());
 }
