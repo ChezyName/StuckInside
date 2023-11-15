@@ -32,8 +32,10 @@ AStuckInsideCharacter::AStuckInsideCharacter()
 	GlobalMesh->SetupAttachment(RootComponent);
 	GlobalMesh->SetOwnerNoSee(true);
 
-	// Uncomment the following line to turn motion controllers on by default:
-	//bUsingMotionControllers = true;
+	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
+	Flashlight->Activate();
+	Flashlight->SetIsReplicated(true);
+	Flashlight->SetupAttachment(RootComponent);
 }
 
 void AStuckInsideCharacter::BeginPlay()

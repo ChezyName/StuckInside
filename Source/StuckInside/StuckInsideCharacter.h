@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SpotLightComponent.h"
 #include "GameFramework/Character.h"
 #include "StuckInsideCharacter.generated.h"
 
@@ -26,6 +27,8 @@ class AStuckInsideCharacter : public ACharacter
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent;
+
+	USpotLightComponent* Flashlight;
 
 public:
 	AStuckInsideCharacter();
