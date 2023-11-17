@@ -18,8 +18,12 @@ Have fun trying to survive while the demon can hear you and you can hear it
 ### **Fake Enter:**
 ***The Intruder*** has a ability where he or she is able to *fake* enter a window, making the victims inside afraid giving him the opertunity to enter via a different window
 
-### **Force Close:**
-***The Intruder*** also has the ability to close all doors, although none of the doors become locked, it may block some victims from escaping his *wraith*
+### **Force Close / Force Open:**
+**Force Close:**
+***The Intruder*** also has the ability to ***close*** all doors, although none of the doors become locked, it may block some victims from escaping his *wraith*
+
+**Force Open:**
+***The Intruder*** also has the ability to ***open*** all doors, although none of the doors become locked, it may block some victims from escaping his *wraith*
 
 ### **Power Disturbance:**
 ***The Intruder*** additionaly can over-load your power, destrying your breaker. This turns off all the lights and stops power from running thruout the building.
