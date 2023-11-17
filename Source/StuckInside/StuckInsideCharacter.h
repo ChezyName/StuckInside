@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Interactable.h"
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/Character.h"
 #include "StuckInsideCharacter.generated.h"
@@ -31,8 +32,14 @@ class AStuckInsideCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpotLightComponent* Flashlight;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	float InteractionRange = 150;
+
 public:
 	AStuckInsideCharacter();
+
+	FString InteractableText = "";
+	AInteractable* Interactable = nullptr;
 
 protected:
 	virtual void BeginPlay();
@@ -67,6 +74,9 @@ protected:
 	void LookUpAtRate(float Rate);
 
 	UFUNCTION(Server,Reliable)
+	void Interact();
+
+	UFUNCTION(Server,Reliable)
 	void ToggleFlashlight();
 
 	UFUNCTION(NetMulticast,Reliable)
@@ -84,6 +94,8 @@ protected:
 	 * @returns true if touch controls were enabled.
 	 */
 
+	virtual void Tick(float DeltaSeconds) override;
+
 public:
 	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh() const { return GlobalMesh; }
@@ -92,6 +104,5 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void onFlashlightToggleBP();
-
 };
 

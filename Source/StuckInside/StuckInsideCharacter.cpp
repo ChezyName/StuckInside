@@ -64,6 +64,7 @@ void AStuckInsideCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 	// Bind Other Events
 	PlayerInputComponent->BindAction("Flashlight", IE_Pressed, this, &AStuckInsideCharacter::ToggleFlashlight);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AStuckInsideCharacter::Interact);
 
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &AStuckInsideCharacter::MoveForward);
@@ -77,6 +78,24 @@ void AStuckInsideCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AStuckInsideCharacter::LookUpAtRate);
 }
+
+void AStuckInsideCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	FVector StartPos = FirstPersonCameraComponent->GetComponentLocation();
+	FVector EndPos = (FirstPersonCameraComponent->GetForwardVector() * InteractionRange) + StartPos;
+
+	FCollisionQueryParams TraceParams(FName(TEXT("Interaction")),true,this);
+	FHitResult Hit(ForceInit);
+	GetWorld()->LineTraceSingleByChannel(Hit,StartPos,EndPos,ECollisionChannel::ECC_GameTraceChannel1,TraceParams);
+	
+	Interactable = Cast<AInteractable>(Hit.GetActor());
+
+	if(Interactable) InteractableText = Interactable->getToolTip();
+	else InteractableText = "";
+}
+
 //Commenting this section out to be consistent with FPS BP template.
 //This allows the user to turn without using the right virtual joystick
 
@@ -143,6 +162,14 @@ void AStuckInsideCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AStuckInsideCharacter::Interact_Implementation()
+{
+	if(Interactable != nullptr)
+	{
+		Interactable->Interact(this);
+	}
 }
 
 void AStuckInsideCharacter::ToggleFlashlight_Implementation()
