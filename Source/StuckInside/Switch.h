@@ -13,5 +13,29 @@ UCLASS()
 class STUCKINSIDE_API ASwitch : public AInteractable
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly,meta=(AllowPrivateAccess))
+	UStaticMeshComponent* Switch;
+
+	bool RightSide = true;
+	bool rngSideIsRight = false;
+
+	virtual void Interact(ACharacter* Character) override;
+
+public:
+	ASwitch();
+
+	void BeginPlay() override;
 	
+	bool getSideActive()
+	{
+		return RightSide == rngSideIsRight;
+	}
+
+	void reset()
+	{
+		RightSide = (bool)(rand() % 2);
+		rngSideIsRight = RightSide = (bool)(rand() % 2);
+		if(Switch) Switch->SetRelativeRotation(FRotator(RightSide ? 0 : 180,0,0));
+	}
 };
