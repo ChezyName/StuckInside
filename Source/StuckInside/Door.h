@@ -23,6 +23,9 @@ class STUCKINSIDE_API ADoor : public AInteractable
 
 	UPROPERTY(EditDefaultsOnly,meta=(AllowPrivateAccess))
 	float MaxRotation = 90;
+
+	UPROPERTY(EditDefaultsOnly,meta=(AllowPrivateAccess))
+	float DoorSpeed = 250;
 	
 	bool isOpen = false;
 

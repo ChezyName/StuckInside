@@ -55,9 +55,9 @@ void ADoor::Interact(ACharacter* Char)
 	
 	if(isOpen) 
 	{
-		Hinge->SetAngularDriveParams(75.f,0.f,0.f);
-		Door->SetMassScale(NAME_None,1);
-		Door->SetAngularDamping(15);
+		Hinge->SetAngularDriveParams(DoorSpeed,0.f,0.f);
+		Door->SetMassScale(NAME_None,300);
+		Door->SetAngularDamping(75);
 		Tooltip = "Close Door";
 		
 		//Open Based On Player Location
@@ -77,10 +77,10 @@ void ADoor::Interact(ACharacter* Char)
 	}
 	else
 	{
-		Hinge->SetAngularDriveParams(150.f,0.f,0.f);
-		Hinge->SetAngularOrientationTarget(FRotator(0,0,0));
+		Hinge->SetAngularDriveParams(DoorSpeed,0.f,0.f);
 		Door->SetMassScale(NAME_None,300);
 		Door->SetAngularDamping(75);
+		Hinge->SetAngularOrientationTarget(FRotator(0,0,0));
 		Tooltip = "Open Door";
 	} 
 
