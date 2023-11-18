@@ -39,8 +39,9 @@ During the night, the *survivors* try to survive by:
 During The Night, ***The Intruder*** would try and *enter* the building via the **windows** but you have a way to stop him before they enter. As long as you close the window with the all new **Window Shutters™** by *Smart Home Inc.*
 Closing the windows is as easy as pressing the switch to toggle the window shutters. Be carefull as the **Window Shutters™** deplete power and could cause your breakers to pop off.
 
-### **Breaker & Generator**
-Inside the **basement** is what powers your smart home. Although there is a screen to show you the ***power %*** and the ***stress***, its only a visual indicator. The **generator** and the **breaker** are both in the basement of your home.
+### **Breaker & Power**
+Inside the **basement** is what powers your smart home. Although there is a screen to show you the ***power %*** and the ***stress***, its only a visual indicator. The **breaker** are is in the basement and requires maintenance from time to time.
+There's only a limited amount of power, be careful and don't waste all of it at once!
 
 ### **Doors**
 There are many doors all can be opened by pressing the door button near the door. Inside your new smart home, all doors are powered by ***Wireless Powering Technology*** or **WPT** created by *Smart Home Inc.*
