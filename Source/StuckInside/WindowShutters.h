@@ -35,4 +35,9 @@ public:
 	bool getIsOpened(){ return isOpened; }
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual FString getToolTip() override
+	{
+		return isOpened ? "Close Window" : "Open Window";
+	}
 };

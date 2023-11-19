@@ -38,7 +38,9 @@ class AStuckInsideCharacter : public ACharacter
 public:
 	AStuckInsideCharacter();
 
+	UPROPERTY(BlueprintReadOnly)
 	FString InteractableText = "";
+	UPROPERTY(BlueprintReadOnly)
 	AInteractable* Interactable = nullptr;
 
 protected:

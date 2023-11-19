@@ -3,6 +3,14 @@
 
 #include "BreakerDoor.h"
 
+#include "Net/UnrealNetwork.h"
+
+void ABreakerDoor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	DOREPLIFETIME(ABreakerDoor,isOpened);
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
 void ABreakerDoor::Interact(ACharacter* Character)
 {
 	Super::Interact(Character);

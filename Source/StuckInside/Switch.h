@@ -38,4 +38,9 @@ public:
 		rngSideIsRight = RightSide = (bool)(rand() % 2);
 		if(Switch) Switch->SetRelativeRotation(FRotator(RightSide ? 0 : 180,0,0));
 	}
+
+	virtual FString getToolTip() override
+	{
+		return "Toggle Switch";
+	}
 };

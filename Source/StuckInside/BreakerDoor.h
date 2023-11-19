@@ -26,7 +26,10 @@ class STUCKINSIDE_API ABreakerDoor : public AInteractable
 	UPROPERTY(EditDefaultsOnly,meta=(AllowPrivateAccess))
 	float OpenSpeed = 12;
 
+	UPROPERTY(Replicated)
 	bool isOpened = false;
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void Interact(ACharacter* Character) override;
 public:
@@ -35,4 +38,9 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	ABreakerDoor();
+
+	virtual FString getToolTip() override
+	{
+		return isOpened ? "Close Breaker" : "Open Breaker";
+	}
 };

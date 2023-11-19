@@ -33,5 +33,5 @@ public:
 
 	virtual void Interact(ACharacter* Character);
 
-	FString getToolTip(){ return Tooltip; }
+	virtual FString getToolTip(){ return Tooltip; }
 };
