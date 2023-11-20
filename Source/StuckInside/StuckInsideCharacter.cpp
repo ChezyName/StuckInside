@@ -5,6 +5,8 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -66,6 +68,9 @@ void AStuckInsideCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Flashlight", IE_Pressed, this, &AStuckInsideCharacter::ToggleFlashlight);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AStuckInsideCharacter::Interact);
 
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AStuckInsideCharacter::startSprint);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AStuckInsideCharacter::endSprint);
+
 	// Bind movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &AStuckInsideCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AStuckInsideCharacter::MoveRight);
@@ -83,17 +88,38 @@ void AStuckInsideCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	FVector StartPos = FirstPersonCameraComponent->GetComponentLocation();
-	FVector EndPos = (FirstPersonCameraComponent->GetForwardVector() * InteractionRange) + StartPos;
+	if(HasAuthority())
+	{
+		FVector StartPos = FirstPersonCameraComponent->GetComponentLocation();
+		FVector EndPos = (FirstPersonCameraComponent->GetForwardVector() * InteractionRange) + StartPos;
 
-	FCollisionQueryParams TraceParams(FName(TEXT("Interaction")),true,this);
-	FHitResult Hit(ForceInit);
-	GetWorld()->LineTraceSingleByChannel(Hit,StartPos,EndPos,ECollisionChannel::ECC_GameTraceChannel1,TraceParams);
+		FCollisionQueryParams TraceParams(FName(TEXT("Interaction")),true,this);
+		FHitResult Hit(ForceInit);
+		GetWorld()->LineTraceSingleByChannel(Hit,StartPos,EndPos,ECollisionChannel::ECC_GameTraceChannel1,TraceParams);
 	
-	Interactable = Cast<AInteractable>(Hit.GetActor());
+		Interactable = Cast<AInteractable>(Hit.GetActor());
 
-	if(Interactable) InteractableText = Interactable->getToolTip();
-	else InteractableText = "";
+		if(Interactable) InteractableText = Interactable->getToolTip();
+		else InteractableText = "";
+
+		//Sprinting
+		if(Sprinting && canSprint)
+		{
+			GEngine->AddOnScreenDebugMessage(-1,0,FColor::Yellow,"Sprinting!");
+			SprintCharge -= SprintChargeReduction * DeltaSeconds;
+			if(SprintCharge <= 0) canSprint = false;
+			GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1,0,FColor::Red,"NOT Sprinting!");
+			SprintCharge += SprintRecharge * DeltaSeconds;
+			if(SprintCharge > 0.25) canSprint = true;
+			GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		}
+
+		SprintCharge = FMath::Clamp(SprintCharge,0.f,1.f);
+	}
 }
 
 //Commenting this section out to be consistent with FPS BP template.
@@ -150,6 +176,22 @@ void AStuckInsideCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), Value);
 	}
+}
+
+void AStuckInsideCharacter::startSprint_Implementation()
+{
+	Sprinting = true;
+}
+
+void AStuckInsideCharacter::endSprint_Implementation()
+{
+	Sprinting = false;
+}
+
+void AStuckInsideCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	DOREPLIFETIME(AStuckInsideCharacter,SprintCharge);
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 void AStuckInsideCharacter::TurnAtRate(float Rate)

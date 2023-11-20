@@ -32,8 +32,20 @@ class AStuckInsideCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpotLightComponent* Flashlight;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Child, meta = (AllowPrivateAccess = "true"))
 	float InteractionRange = 150;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Child, meta = (AllowPrivateAccess = "true"))
+	float WalkSpeed = 350;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Child, meta = (AllowPrivateAccess = "true"))
+	float SprintSpeed = 600;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Child, meta = (AllowPrivateAccess = "true"))
+	float SprintChargeReduction = 2.5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Child, meta = (AllowPrivateAccess = "true"))
+	float SprintRecharge = 0.75;
 
 public:
 	AStuckInsideCharacter();
@@ -63,6 +75,20 @@ protected:
 	/** Handles stafing movement, left and right */
 	void MoveRight(float Val);
 
+	UFUNCTION(Server,Reliable)
+	void startSprint();
+
+	UFUNCTION(Server,Reliable)
+	void endSprint();
+
+	bool Sprinting = false;
+	bool canSprint = true;
+
+	UPROPERTY(Replicated)
+	float SprintCharge = 100;
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	/**
 	 * Called via input to turn at a given rate.
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
@@ -106,5 +132,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void onFlashlightToggleBP();
+
+	UFUNCTION(BlueprintCallable)
+	float getSprint(){ return SprintCharge; }
 };
 
