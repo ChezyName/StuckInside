@@ -18,7 +18,7 @@ class STUCKINSIDE_API AWindowShutters : public AInteractable
 	USkeletalMeshComponent* Doors;
 	
 	UPROPERTY(Replicated,ReplicatedUsing=onDoorChanged)
-	bool isOpened = false;
+	bool isOpened = true;
 
 	virtual void Interact(ACharacter* Character) override;
 
@@ -27,6 +27,8 @@ class STUCKINSIDE_API AWindowShutters : public AInteractable
 
 public:
 	AWindowShutters();
+
+	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DoorChangeEvent(bool isOpen);

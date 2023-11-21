@@ -22,6 +22,12 @@ AWindowShutters::AWindowShutters()
 	InteractionHB->SetupAttachment(RootComponent);
 }
 
+void AWindowShutters::BeginPlay()
+{
+	DoorChangeEvent(isOpened);
+	Super::BeginPlay();
+}
+
 void AWindowShutters::onDoorChanged_Implementation()
 {
 	GEngine->AddOnScreenDebugMessage(-1,1,FColor::Green,"Rep Notify -> Custom Event");
