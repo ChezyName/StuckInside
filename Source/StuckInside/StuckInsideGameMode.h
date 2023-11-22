@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "WindowShutters.h"
+#include "StuckInside/StuckInsideGS.h"
 #include "GameFramework/GameModeBase.h"
 #include "StuckInsideGameMode.generated.h"
 
@@ -13,6 +15,18 @@ class AStuckInsideGameMode : public AGameModeBase
 
 public:
 	AStuckInsideGameMode();
+
+	UPROPERTY(EditAnywhere)
+	float TickTime = 1.5f;
+
+	UPROPERTY()
+	AStuckInsideGS* SIGameState;
+	UPROPERTY()
+	TArray<AWindowShutters*> Windows;
+
+	void BeginPlay() override;
+
+	void Tick(float DeltaSeconds) override;
 };
 
 
