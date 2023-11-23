@@ -7,6 +7,7 @@
 
 void AWindowShutters::Interact(ACharacter* Character)
 {
+	if(GState && !GState->PowerActive) return;
 	isOpened = !isOpened;
 	GEngine->AddOnScreenDebugMessage(-1,1,FColor::Green,"Tryna Open / Close Window!");
 	onDoorChanged();
@@ -22,9 +23,17 @@ AWindowShutters::AWindowShutters()
 	InteractionHB->SetupAttachment(RootComponent);
 }
 
+void AWindowShutters::Close_Implementation()
+{
+	if(isOpened == true) return;
+	isOpened = true;
+	DoorChangeEvent(isOpened);
+}
+
 void AWindowShutters::BeginPlay()
 {
 	DoorChangeEvent(isOpened);
+	GState = Cast<AStuckInsideGS>(GetWorld()->GetGameState());
 	Super::BeginPlay();
 }
 

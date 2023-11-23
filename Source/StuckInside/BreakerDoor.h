@@ -33,6 +33,7 @@ class STUCKINSIDE_API ABreakerDoor : public AInteractable
 	
 	virtual void Interact(ACharacter* Character) override;
 public:
+	UFUNCTION(Server,Reliable)
 	void Close();
 
 	virtual void Tick(float DeltaSeconds) override;

@@ -18,5 +18,8 @@ public:
 	UPROPERTY(BlueprintReadOnly,Replicated)
 	int PowerUsage = 0;
 
+	UPROPERTY(BlueprintReadOnly,Replicated)
+	bool PowerActive = true;
+
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

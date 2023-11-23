@@ -27,13 +27,9 @@ void ABreakerDoor::Interact(ACharacter* Character)
 	}
 }
 
-void ABreakerDoor::Close()
+void ABreakerDoor::Close_Implementation()
 {
-	if(HasAuthority())
-	{
-		//BreakerDoor->SetRelativeRotation(FRotator(0,CloseRotationYaw,0));
-		isOpened = false;
-	}
+	isOpened = false;
 }
 
 void ABreakerDoor::Tick(float DeltaSeconds)

@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BreakerDoor.h"
+#include "Switch.h"
 #include "WindowShutters.h"
 #include "StuckInside/StuckInsideGS.h"
 #include "GameFramework/GameModeBase.h"
@@ -13,16 +15,25 @@ class AStuckInsideGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+	float Breaker = 1.f;
+
 public:
 	AStuckInsideGameMode();
 
 	UPROPERTY(EditAnywhere)
-	float TickTime = 1.5f;
+	float MaxPowerUsageTimeBeforeBreaker = 1.5f;
 
 	UPROPERTY()
 	AStuckInsideGS* SIGameState;
+	
 	UPROPERTY()
 	TArray<AWindowShutters*> Windows;
+	
+	UPROPERTY()
+	TArray<ASwitch*> BreakerSwitches;
+	
+	UPROPERTY()
+	ABreakerDoor* BreakerDoor;
 
 	void BeginPlay() override;
 

@@ -21,6 +21,7 @@ ASwitch::ASwitch()
 
 void ASwitch::BeginPlay()
 {
-	reset();
+	RightSide = true;
+	if(Switch) Switch->SetRelativeRotation(FRotator(RightSide ? 0 : 180,0,0));
 	Super::BeginPlay();
 }

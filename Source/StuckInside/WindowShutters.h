@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Interactable.h"
+#include "StuckInsideGS.h"
 #include "WindowShutters.generated.h"
 
 /**
@@ -25,8 +26,13 @@ class STUCKINSIDE_API AWindowShutters : public AInteractable
 	UFUNCTION(NetMulticast,Reliable)
 	void onDoorChanged();
 
+	AStuckInsideGS* GState;
+
 public:
 	AWindowShutters();
+
+	UFUNCTION(Server,Reliable)
+	void Close();
 
 	virtual void BeginPlay() override;
 
@@ -40,6 +46,6 @@ public:
 
 	virtual FString getToolTip() override
 	{
-		return isOpened ? "Close Window" : "Open Window";
+		return !GState->PowerActive ? "NO POWER" : isOpened ? "Close Window" : "Open Window";
 	}
 };

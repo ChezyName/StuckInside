@@ -8,5 +8,6 @@
 void AStuckInsideGS::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	DOREPLIFETIME(AStuckInsideGS,PowerUsage);
+	DOREPLIFETIME(AStuckInsideGS,PowerActive);
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }

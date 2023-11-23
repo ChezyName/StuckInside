@@ -18,7 +18,6 @@ class STUCKINSIDE_API ASwitch : public AInteractable
 	UStaticMeshComponent* Switch;
 
 	bool RightSide = true;
-	bool rngSideIsRight = false;
 
 	virtual void Interact(ACharacter* Character) override;
 
@@ -29,13 +28,12 @@ public:
 	
 	bool getSideActive()
 	{
-		return RightSide == rngSideIsRight;
+		return RightSide == true;
 	}
 
 	void reset()
 	{
-		RightSide = (bool)(rand() % 2);
-		rngSideIsRight = RightSide = (bool)(rand() % 2);
+		RightSide = false;
 		if(Switch) Switch->SetRelativeRotation(FRotator(RightSide ? 0 : 180,0,0));
 	}
 
