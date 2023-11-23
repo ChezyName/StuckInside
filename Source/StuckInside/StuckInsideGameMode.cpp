@@ -96,7 +96,6 @@ void AStuckInsideGameMode::Tick(float DeltaSeconds)
 	if(SwitchIsOn)
 	{
 		SIGameState->PowerActive = true;
-		Breaker = MaxPowerUsageTimeBeforeBreaker;
 	}
 	else
 	{
