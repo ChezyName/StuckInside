@@ -22,6 +22,8 @@ ADemon::ADemon()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
+	GetMovementComponent()->SetIsReplicated(true);
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
@@ -38,6 +40,7 @@ ADemon::ADemon()
 
 	ChaseSound = CreateDefaultSubobject<UAudioComponent>(TEXT("ChaseSound"));
 	ChaseSound->SetupAttachment(FirstPersonCameraComponent);
+	ChaseSound->SetIsReplicated(true);
 
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	GlobalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
@@ -99,15 +102,21 @@ void ADemon::Tick(float DeltaTime)
 			SetActorLocation(
 				FMath::Lerp(StartPos,EndPos,TimeEntering/EnterTime)
 			);
+			setLocation(FMath::Lerp(StartPos,EndPos,TimeEntering/EnterTime));
 
 			//Check If Window Is Closed
 			if(WindowEntering && !WindowEntering->getIsOpened())
 			{
 				//Window Is Closed
-				ChaseSound->Stop();
+				StopChase();
 				isOutside = true;
+				PlayDoorClosedSFX();
 				SetActorLocation(SpawnLoc);
+				//setLocation(SpawnLoc);
 				cChaseTime = ChaseTime;
+				EnteringBuilding = false;
+				GetMovementComponent()->Activate();
+				bUseControllerRotationYaw = true;
 			}
 
 			if(TimeEntering/EnterTime >= 1)
@@ -118,8 +127,9 @@ void ADemon::Tick(float DeltaTime)
 
 				//Play Chase SFX
 				GetMovementComponent()->Activate();
-				ChaseSound->Play();
+				PlayChase();
 				cChaseTime = ChaseTime;
+				bUseControllerRotationYaw = true;
 			}
 
 			TimeEntering = FMath::Clamp(TimeEntering + DeltaTime,0.f,EnterTime);
@@ -130,7 +140,7 @@ void ADemon::Tick(float DeltaTime)
 			cChaseTime -= DeltaTime;
 			if(cChaseTime <= 0)
 			{
-				ChaseSound->Stop();
+				StopChase();
 				isOutside = true;
 				SetActorLocation(SpawnLoc);
 				cChaseTime = ChaseTime;
@@ -146,12 +156,37 @@ void ADemon::PlayEnterSFX_Implementation()
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(),EnterSFX,GetActorLocation());
 }
 
+void ADemon::PlayDoorClosedSFX_Implementation()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(),DoorCloseSFX,GetActorLocation());
+}
+
+void ADemon::PlayChase_Implementation()
+{
+	ChaseSound->Play();
+}
+
+void ADemon::StopChase_Implementation()
+{
+	ChaseSound->Stop();
+}
+
 void ADemon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	DOREPLIFETIME(ADemon,BiteCD);
 	DOREPLIFETIME(ADemon,BiteCount);
 	DOREPLIFETIME(ADemon,cChaseTime);
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+void ADemon::setRotation_Implementation(FRotator newRotation)
+{
+	SetActorRotation(newRotation);
+}
+
+void ADemon::setLocation_Implementation(FVector newLocaiton)
+{
+	SetActorLocation(newLocaiton);
 }
 
 void ADemon::BiteAnimationPlayAll_Implementation()
@@ -170,7 +205,7 @@ void ADemon::Bite_Implementation()
 
 		FCollisionQueryParams TraceParams(FName(TEXT("Interaction")),true,this);
 		FHitResult Hit(ForceInit);
-		GetWorld()->LineTraceSingleByChannel(Hit,SPos,EPos,ECollisionChannel::ECC_GameTraceChannel1,TraceParams);
+		GetWorld()->LineTraceSingleByChannel(Hit,SPos,EPos,ECC_GameTraceChannel1,TraceParams);
 	
 		AWindowShutters* WindowShutter = Cast<AWindowShutters>(Hit.GetActor());
 		if(WindowShutter)
@@ -183,6 +218,9 @@ void ADemon::Bite_Implementation()
 			PlayEnterSFX();
 			EnteringBuilding = true;
 			GetMovementComponent()->Deactivate();
+			bUseControllerRotationYaw = false;
+			SetActorRotation(WindowShutter->Outside->GetComponentRotation());
+			setRotation(WindowShutter->Outside->GetComponentRotation());
 		}
 	}
 	else if(BiteCD <= 0 && BiteCount > 0)
@@ -219,7 +257,7 @@ void ADemon::Bite_Implementation()
 		}
 
 		if(BiteCount <= 0) {
-			ChaseSound->Stop();
+			StopChase();
 			isOutside = true;
 			SetActorLocation(SpawnLoc);
 			cChaseTime = ChaseTime;

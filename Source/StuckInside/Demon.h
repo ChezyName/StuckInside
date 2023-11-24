@@ -49,6 +49,9 @@ protected:
 	USoundWave* EnterSFX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
+	USoundWave* DoorCloseSFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
 	float EnterTime = 2.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
@@ -106,7 +109,21 @@ public:
 	UFUNCTION(NetMulticast,Reliable)
 	void PlayEnterSFX();
 
+	UFUNCTION(NetMulticast,Reliable)
+	void PlayDoorClosedSFX();
+
+	UFUNCTION(NetMulticast,Reliable)
+	void PlayChase();
+	UFUNCTION(NetMulticast,Reliable)
+	void StopChase();
+
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(NetMulticast,Unreliable)
+	void setLocation(FVector newLocaiton);
+
+	UFUNCTION(NetMulticast,Unreliable)
+	void setRotation(FRotator newRotation);
 
 	UPROPERTY(Replicated,BlueprintReadOnly)
 	float BiteCD = 0;

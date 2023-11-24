@@ -95,7 +95,7 @@ void AStuckInsideCharacter::Tick(float DeltaSeconds)
 
 		FCollisionQueryParams TraceParams(FName(TEXT("Interaction")),true,this);
 		FHitResult Hit(ForceInit);
-		GetWorld()->LineTraceSingleByChannel(Hit,StartPos,EndPos,ECollisionChannel::ECC_GameTraceChannel1,TraceParams);
+		GetWorld()->LineTraceSingleByChannel(Hit,StartPos,EndPos,ECC_GameTraceChannel1,TraceParams);
 	
 		Interactable = Cast<AInteractable>(Hit.GetActor());
 
