@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "BreakerDoor.h"
+#include "Demon.h"
+#include "StuckInsideCharacter.h"
 #include "Switch.h"
 #include "WindowShutters.h"
 #include "StuckInside/StuckInsideGS.h"
@@ -21,6 +23,11 @@ public:
 	AStuckInsideGameMode();
 
 	UPROPERTY(EditAnywhere)
+	AStuckInsideCharacter* Survivors;
+	UPROPERTY(EditAnywhere)
+	ADemon* Demon;
+
+	UPROPERTY(EditAnywhere)
 	float MaxPowerUsageTimeBeforeBreaker = 1.5f;
 
 	UPROPERTY()
@@ -36,6 +43,8 @@ public:
 	ABreakerDoor* BreakerDoor;
 
 	void BeginPlay() override;
+	
+	void KillPlayer(AStuckInsideCharacter* Character);
 
 	void Tick(float DeltaSeconds) override;
 };

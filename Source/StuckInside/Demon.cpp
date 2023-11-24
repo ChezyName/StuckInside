@@ -5,6 +5,7 @@
 
 #include "Door.h"
 #include "StuckInsideCharacter.h"
+#include "StuckInsideGameMode.h"
 #include "WindowShutters.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
@@ -127,9 +128,11 @@ void ADemon::Tick(float DeltaTime)
 
 				//Play Chase SFX
 				GetMovementComponent()->Activate();
+				SetActorLocation(EndPos);
 				PlayChase();
 				cChaseTime = ChaseTime;
 				bUseControllerRotationYaw = true;
+				BiteCount = 3;
 			}
 
 			TimeEntering = FMath::Clamp(TimeEntering + DeltaTime,0.f,EnterTime);
@@ -169,6 +172,14 @@ void ADemon::PlayChase_Implementation()
 void ADemon::StopChase_Implementation()
 {
 	ChaseSound->Stop();
+}
+
+void ADemon::PlayKillEffects_Implementation(FVector KillLoc)
+{
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(),
+		HumanDeathVFX,
+		KillLoc);
 }
 
 void ADemon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -249,10 +260,21 @@ void ADemon::Bite_Implementation()
 			if(HumanObject)
 			{
 				//Kill Human
-
-				//Disapear Back To Spawn
-				SetActorLocation(SpawnLoc);
-				break;
+				AStuckInsideGameMode* GM = Cast<AStuckInsideGameMode>(GetWorld()->GetAuthGameMode());
+				if(GM)
+				{
+					GEngine->AddOnScreenDebugMessage(-1,12,FColor::Red,HumanObject->GetName() + " HAS DIED!");
+					PlayKillEffects(HumanObject->GetActorLocation());
+					GM->KillPlayer(HumanObject);
+					
+					//Disapear Back To Spawn
+					SetActorLocation(SpawnLoc);
+					StopChase();
+					isOutside = true;
+					SetActorLocation(SpawnLoc);
+					cChaseTime = ChaseTime;
+					break;
+				}
 			}
 		}
 

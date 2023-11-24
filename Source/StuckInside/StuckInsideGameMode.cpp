@@ -53,6 +53,10 @@ void AStuckInsideGameMode::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AStuckInsideGameMode::KillPlayer(AStuckInsideCharacter* Character)
+{
+}
+
 void AStuckInsideGameMode::Tick(float DeltaSeconds)
 {
 	int WindowsActive = 0;

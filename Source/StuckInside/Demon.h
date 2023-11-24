@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Character.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Demon.generated.h"
 
 UCLASS()
@@ -50,6 +51,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
 	USoundWave* DoorCloseSFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
+	UNiagaraSystem* HumanDeathVFX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
 	float EnterTime = 2.f;
@@ -116,6 +120,9 @@ public:
 	void PlayChase();
 	UFUNCTION(NetMulticast,Reliable)
 	void StopChase();
+
+	UFUNCTION(NetMulticast,Reliable)
+	void PlayKillEffects(FVector KillLoc);
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
