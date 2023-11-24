@@ -110,6 +110,7 @@ void ADemon::Tick(float DeltaTime)
 			{
 				//Window Is Closed
 				StopChase();
+				onDemonDisapear();
 				isOutside = true;
 				PlayDoorClosedSFX();
 				SetActorLocation(SpawnLoc);
@@ -144,6 +145,7 @@ void ADemon::Tick(float DeltaTime)
 			if(cChaseTime <= 0)
 			{
 				StopChase();
+				onDemonDisapear();
 				isOutside = true;
 				SetActorLocation(SpawnLoc);
 				cChaseTime = ChaseTime;
@@ -180,6 +182,14 @@ void ADemon::PlayKillEffects_Implementation(FVector KillLoc)
 		GetWorld(),
 		HumanDeathVFX,
 		KillLoc);
+}
+
+void ADemon::onDemonDisapear_Implementation()
+{
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+	GetWorld(),
+	DisapearVFX,
+	GetActorLocation());
 }
 
 void ADemon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -270,6 +280,7 @@ void ADemon::Bite_Implementation()
 					//Disapear Back To Spawn
 					SetActorLocation(SpawnLoc);
 					StopChase();
+					onDemonDisapear();
 					isOutside = true;
 					SetActorLocation(SpawnLoc);
 					cChaseTime = ChaseTime;
@@ -280,6 +291,7 @@ void ADemon::Bite_Implementation()
 
 		if(BiteCount <= 0) {
 			StopChase();
+			onDemonDisapear();
 			isOutside = true;
 			SetActorLocation(SpawnLoc);
 			cChaseTime = ChaseTime;

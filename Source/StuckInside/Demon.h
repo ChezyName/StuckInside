@@ -54,6 +54,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
 	UNiagaraSystem* HumanDeathVFX;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
+	UNiagaraSystem* DisapearVFX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
 	float EnterTime = 2.f;
@@ -120,6 +123,9 @@ public:
 	void PlayChase();
 	UFUNCTION(NetMulticast,Reliable)
 	void StopChase();
+
+	UFUNCTION(NetMulticast,Reliable)
+	void onDemonDisapear();
 
 	UFUNCTION(NetMulticast,Reliable)
 	void PlayKillEffects(FVector KillLoc);
