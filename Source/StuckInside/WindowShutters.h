@@ -31,6 +31,11 @@ class STUCKINSIDE_API AWindowShutters : public AInteractable
 public:
 	AWindowShutters();
 
+	UPROPERTY(EditDefaultsOnly,meta=(AllowPrivateAccess),BlueprintReadOnly)
+	USceneComponent* Outside;
+	UPROPERTY(EditDefaultsOnly,meta=(AllowPrivateAccess),BlueprintReadOnly)
+	USceneComponent* Inside;
+
 	UFUNCTION(Server,Reliable)
 	void Close();
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "WindowShutters.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Character.h"
@@ -32,6 +33,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
+	UAudioComponent* ChaseSound;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
 	float BiteCooldownPerBite = 0.75f;
 	
@@ -40,6 +44,25 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
 	USoundWave* BiteSFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
+	USoundWave* EnterSFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
+	float EnterTime = 2.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
+	float ChaseTime = 17.1;
+
+	bool isOutside = true;
+	bool EnteringBuilding;
+	float TimeEntering = 0;
+	FVector StartPos;
+	FVector EndPos;
+	AWindowShutters* WindowEntering;
+
+	UPROPERTY(Replicated)
+	float cChaseTime = 0;
 	
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -80,6 +103,9 @@ public:
 	UFUNCTION(NetMulticast,Reliable)
 	void BiteAnimationPlayAll();
 
+	UFUNCTION(NetMulticast,Reliable)
+	void PlayEnterSFX();
+
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(Replicated,BlueprintReadOnly)
@@ -87,6 +113,12 @@ public:
 
 	UPROPERTY(Replicated,BlueprintReadOnly)
 	int BiteCount = 3;
+
+	UFUNCTION(BlueprintCallable)
+	float getTime()
+	{
+		return cChaseTime/ChaseTime;
+	}
 
 	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh() const { return GlobalMesh; }

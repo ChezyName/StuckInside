@@ -5,10 +5,12 @@
 
 #include "Door.h"
 #include "StuckInsideCharacter.h"
+#include "WindowShutters.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -34,6 +36,9 @@ ADemon::ADemon()
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 	FirstPersonCameraComponent->SetIsReplicated(true);
 
+	ChaseSound = CreateDefaultSubobject<UAudioComponent>(TEXT("ChaseSound"));
+	ChaseSound->SetupAttachment(FirstPersonCameraComponent);
+
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	GlobalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
 	GlobalMesh->SetOnlyOwnerSee(true);
@@ -47,7 +52,11 @@ ADemon::ADemon()
 // Called when the game starts or when spawned
 void ADemon::BeginPlay()
 {
-	if(HasAuthority()) SpawnLoc = GetActorLocation();
+	if(HasAuthority())
+	{
+		SpawnLoc = GetActorLocation();
+		cChaseTime = ChaseTime;
+	}
 	Super::BeginPlay();
 	
 }
@@ -77,15 +86,71 @@ void ADemon::SetupPlayerInputComponent(class UInputComponent* PlayerInputCompone
 // Called every frame
 void ADemon::Tick(float DeltaTime)
 {
-	if(HasAuthority()) BiteCD -= DeltaTime;
+	if(HasAuthority())
+	{
+		BiteCD -= DeltaTime;
+
+		if(EnteringBuilding)
+		{
+			GEngine->AddOnScreenDebugMessage(-1,0,FColor::Blue,"Enter Building @ " +
+				FString::SanitizeFloat(FMath::RoundToZero((TimeEntering/EnterTime) * 100 )) + "%");
+			GEngine->AddOnScreenDebugMessage(-1,0,FColor::Blue,"A: " + StartPos.ToString() + "\nB: " + EndPos.ToString());
+			
+			SetActorLocation(
+				FMath::Lerp(StartPos,EndPos,TimeEntering/EnterTime)
+			);
+
+			//Check If Window Is Closed
+			if(WindowEntering && !WindowEntering->getIsOpened())
+			{
+				//Window Is Closed
+				ChaseSound->Stop();
+				isOutside = true;
+				SetActorLocation(SpawnLoc);
+				cChaseTime = ChaseTime;
+			}
+
+			if(TimeEntering/EnterTime >= 1)
+			{
+				//Has Entered The Building
+				isOutside = false;
+				EnteringBuilding = false;
+
+				//Play Chase SFX
+				GetMovementComponent()->Activate();
+				ChaseSound->Play();
+				cChaseTime = ChaseTime;
+			}
+
+			TimeEntering = FMath::Clamp(TimeEntering + DeltaTime,0.f,EnterTime);
+		}
+
+		if(!isOutside)
+		{
+			cChaseTime -= DeltaTime;
+			if(cChaseTime <= 0)
+			{
+				ChaseSound->Stop();
+				isOutside = true;
+				SetActorLocation(SpawnLoc);
+				cChaseTime = ChaseTime;
+			}
+		}
+	}
 	Super::Tick(DeltaTime);
 
+}
+
+void ADemon::PlayEnterSFX_Implementation()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(),EnterSFX,GetActorLocation());
 }
 
 void ADemon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	DOREPLIFETIME(ADemon,BiteCD);
 	DOREPLIFETIME(ADemon,BiteCount);
+	DOREPLIFETIME(ADemon,cChaseTime);
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
@@ -97,7 +162,30 @@ void ADemon::BiteAnimationPlayAll_Implementation()
 
 void ADemon::Bite_Implementation()
 {
-	if(BiteCD <= 0 && BiteCount > 0)
+	if(isOutside)
+	{
+		//Enter Building If Looking At Window
+		FVector SPos = FirstPersonCameraComponent->GetComponentLocation();
+		FVector EPos = (FirstPersonCameraComponent->GetForwardVector() * 250) + SPos;
+
+		FCollisionQueryParams TraceParams(FName(TEXT("Interaction")),true,this);
+		FHitResult Hit(ForceInit);
+		GetWorld()->LineTraceSingleByChannel(Hit,SPos,EPos,ECollisionChannel::ECC_GameTraceChannel1,TraceParams);
+	
+		AWindowShutters* WindowShutter = Cast<AWindowShutters>(Hit.GetActor());
+		if(WindowShutter)
+		{
+			GEngine->AddOnScreenDebugMessage(-1,5,FColor::Blue,"ENTERING BUILDING!");
+			WindowEntering = WindowShutter;
+			StartPos = WindowShutter->Outside->GetComponentLocation();
+			EndPos = WindowShutter->Inside->GetComponentLocation();
+			TimeEntering = 0;
+			PlayEnterSFX();
+			EnteringBuilding = true;
+			GetMovementComponent()->Deactivate();
+		}
+	}
+	else if(BiteCD <= 0 && BiteCount > 0)
 	{
 		BiteCount -= 1;
 		BiteCD = BiteCooldownPerBite;
@@ -130,7 +218,12 @@ void ADemon::Bite_Implementation()
 			}
 		}
 
-		if(BiteCount <= 0) SetActorLocation(SpawnLoc);
+		if(BiteCount <= 0) {
+			ChaseSound->Stop();
+			isOutside = true;
+			SetActorLocation(SpawnLoc);
+			cChaseTime = ChaseTime;
+		}
 	}
 }
 

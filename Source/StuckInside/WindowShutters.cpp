@@ -21,6 +21,12 @@ AWindowShutters::AWindowShutters()
 
 	InteractionHB->Deactivate();
 	InteractionHB->SetupAttachment(RootComponent);
+
+	Outside = CreateDefaultSubobject<USceneComponent>("Outside");
+	Outside->SetupAttachment(RootComponent);
+
+	Inside = CreateDefaultSubobject<USceneComponent>("Inside");
+	Inside->SetupAttachment(RootComponent);
 }
 
 void AWindowShutters::Close_Implementation()
