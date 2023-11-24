@@ -20,6 +20,7 @@ ADoor::ADoor()
 	Door->SetIsReplicated(true);
 	Door->SetAngularDamping(200);
 	Door->SetCollisionResponseToChannel(ECC_GameTraceChannel1,ECollisionResponse::ECR_Block);
+	Door->SetIsReplicated(true);
 
 	Door->SetCollisionResponseToChannel(ECC_WorldDynamic,ECollisionResponse::ECR_Overlap);
 	Door->SetCollisionResponseToChannel(ECC_WorldStatic,ECollisionResponse::ECR_Overlap);

@@ -36,4 +36,6 @@ class STUCKINSIDE_API ADoor : public AInteractable
 	virtual void Tick(float DeltaSeconds) override;
 public:
 	ADoor();
+
+	UStaticMeshComponent* GetDoor(){ return Door; }
 };
