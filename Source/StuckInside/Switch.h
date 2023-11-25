@@ -37,6 +37,12 @@ public:
 		if(Switch) Switch->SetRelativeRotation(FRotator(RightSide ? 0 : 180,0,0));
 	}
 
+	void activate()
+	{
+		RightSide = true;
+		if(Switch) Switch->SetRelativeRotation(FRotator(RightSide ? 0 : 180,0,0));
+	}
+
 	virtual FString getToolTip() override
 	{
 		return "Toggle Switch";

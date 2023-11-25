@@ -23,6 +23,11 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	bool GameStarted = false;
 
+	void ResetGame();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void EventResetGame(const TArray<APlayerController*>& PlayerControllers);
+
 public:
 	AStuckInsideGameMode();
 	UPROPERTY(EditAnywhere)

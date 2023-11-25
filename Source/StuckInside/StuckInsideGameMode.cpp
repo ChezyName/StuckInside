@@ -10,6 +10,52 @@
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
+void AStuckInsideGameMode::ResetGame()
+{
+	GameStarted = false;
+	SIGameState->currentTime = 0;
+	SIGameState->DemonPlayer = nullptr;
+	SIGameState->PowerActive = true;
+	SIGameState->PowerUsage = 0;
+
+	for(AWindowShutters* Window : Windows)
+	{
+		if(Window) Window->Close();
+	}
+
+	for(ASwitch* s : BreakerSwitches) s->activate();
+	BreakerDoor->Close();
+
+	for (ADoor* Door : TActorRange<ADoor>(GetWorld()))
+	{
+		if(Door)
+		{
+			UStaticMeshComponent* DoorMesh = Door->GetDoor();
+			DoorMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			DoorMesh->SetVisibility(true);
+		}
+	}
+
+	TArray<APlayerController*> Players;
+	for (APlayerController* Controller : TActorRange<APlayerController>(GetWorld()))
+	{
+		if(Controller)
+		{
+			GEngine->AddOnScreenDebugMessage(-1,25,FColor::Yellow, Controller->GetName());
+			Players.Add(Controller);
+			FActorSpawnParameters PlayerSpawnParameters{};
+			APawn* NewChar = GetWorld()->SpawnActor<APawn>(LobbyClass, FindPlayerStart(Controller,"None") ? FindPlayerStart(Controller,"None")->GetActorLocation() : FVector::ZeroVector, FRotator::ZeroRotator, PlayerSpawnParameters);
+			if(Controller->GetPawn())
+			{
+				Controller->GetPawn()->Destroy();
+			}
+			Controller->Possess(NewChar);
+		}
+	}
+
+	EventResetGame(Players);
+}
+
 AStuckInsideGameMode::AStuckInsideGameMode()
 	: Super()
 {
@@ -118,6 +164,14 @@ void AStuckInsideGameMode::KillPlayer(AStuckInsideCharacter* Character)
 	FActorSpawnParameters PlayerSpawnParameters{};
 	APawn* NewChar = GetWorld()->SpawnActor<APawn>(DefaultPawnClass, FindPlayerStart(Controller,"Human") ? FindPlayerStart(Controller,"Human")->GetActorLocation() : FVector::ZeroVector, FRotator::ZeroRotator, PlayerSpawnParameters);
 	Controller->Possess(NewChar);
+	
+	TArray<AActor*> FoundActorsA;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStuckInsideCharacter::StaticClass(), FoundActorsA);
+	if(FoundActorsA.Num() <= 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1,25,FColor::Red, "ALL PLAYERS DEAD!");
+		ResetGame();
+	}
 }
 
 void AStuckInsideGameMode::Tick(float DeltaSeconds)
@@ -128,15 +182,6 @@ void AStuckInsideGameMode::Tick(float DeltaSeconds)
 		if(IsValid(Window) && !Window->getIsOpened()) WindowsActive++;
 	}
 
-	TArray<AActor*> FoundActorsA;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStuckInsideCharacter::StaticClass(), FoundActorsA);
-	if(FoundActorsA.Num() <= 0 && GameStarted)
-	{
-		GEngine->AddOnScreenDebugMessage(-1,25,FColor::Red, "ALL PLAYERS DEAD!");
-		bUseSeamlessTravel = true;
-		GetWorld()->ServerTravel(*GetWorld()->GetName(),false,false);
-	}
-
 	GEngine->AddOnScreenDebugMessage(-1,0,FColor::Red,"Power Usage Time: " + FString::SanitizeFloat(Breaker));
 	GEngine->AddOnScreenDebugMessage(-1,0,SIGameState->PowerActive ? FColor::Green : FColor::Red,"POWER");
 
@@ -144,11 +189,11 @@ void AStuckInsideGameMode::Tick(float DeltaSeconds)
 	if(SIGameState)
 	{
 		SIGameState->PowerUsage = WindowsActive;
-		SIGameState->currentTime += DeltaSeconds;
+		if(GameStarted) SIGameState->currentTime += DeltaSeconds;
 		if(SIGameState->currentTime >= SIGameState->maxTime)
 		{
 			//Game Reset
-			ResetLevel();
+			ResetGame();
 		}
 	}
 
@@ -163,7 +208,7 @@ void AStuckInsideGameMode::Tick(float DeltaSeconds)
 
 			for(AWindowShutters* Window : Windows)
 			{
-				Window->Close();
+				if(Window) Window->Close();
 			}
 
 			for(ASwitch* s : BreakerSwitches) s->reset();
