@@ -17,7 +17,10 @@ class AStuckInsideGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+protected:
 	float Breaker = 1.f;
+
+	UPROPERTY(BlueprintReadOnly)
 	bool GameStarted = false;
 
 public:
@@ -32,7 +35,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	float MaxPowerUsageTimeBeforeBreaker = 1.5f;
 
-	UFUNCTION(Server,Reliable)
+	UFUNCTION(Server,Reliable,BlueprintCallable)
 	void onAllPlayersReady();
 
 	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;

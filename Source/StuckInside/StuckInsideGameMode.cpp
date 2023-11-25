@@ -1,9 +1,12 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "StuckInsideGameMode.h"
+
+#include "EngineUtils.h"
 #include "StuckInsideHUD.h"
 #include "StuckInsideCharacter.h"
 #include "StuckInsideGS.h"
+#include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -22,9 +25,37 @@ AStuckInsideGameMode::AStuckInsideGameMode()
 
 void AStuckInsideGameMode::onAllPlayersReady_Implementation()
 {
+	if(GameStarted) return;
 	GameStarted = true;
 
+	GEngine->AddOnScreenDebugMessage(-1,5,FColor::Green, "Game Is Starting Real Soon [C++]");
+
 	//PlayersPick Spawn
+	AStuckInsideGS* GS = Cast<AStuckInsideGS>(GameState);
+	if(GS)
+	{
+		for (APlayerController* Controller : TActorRange<APlayerController>(GetWorld()))
+		{
+			GEngine->AddOnScreenDebugMessage(-1,5,FColor::Green, "Summoning " + Controller->GetName());
+			//code
+			if(Controller->GetPlayerState<APlayerState>() == GS->DemonPlayer)
+			{
+				//Spawn DEMON
+				FActorSpawnParameters PlayerSpawnParameters{};
+				APawn* NewChar = GetWorld()->SpawnActor<APawn>(Demon, FindPlayerStart(Controller,"Demon") ? FindPlayerStart(Controller,"Demon")->GetActorLocation() : FVector::ZeroVector, FRotator::ZeroRotator, PlayerSpawnParameters);
+				if(Controller->GetPawn()) Controller->GetPawn()->Destroy();
+				Controller->Possess(NewChar);
+			}
+			else
+			{
+				//Spawn HUMAN
+				FActorSpawnParameters PlayerSpawnParameters{};
+				APawn* NewChar = GetWorld()->SpawnActor<APawn>(Survivors, FindPlayerStart(Controller,"Human") ? FindPlayerStart(Controller,"Human")->GetActorLocation() : FVector::ZeroVector, FRotator::ZeroRotator, PlayerSpawnParameters);
+				if(Controller->GetPawn()) Controller->GetPawn()->Destroy();
+				Controller->Possess(NewChar);
+			}
+		}
+	}
 }
 
 void AStuckInsideGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
