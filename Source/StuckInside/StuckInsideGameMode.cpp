@@ -111,6 +111,13 @@ void AStuckInsideGameMode::BeginPlay()
 
 void AStuckInsideGameMode::KillPlayer(AStuckInsideCharacter* Character)
 {
+	AController* Controller = Character->GetController();
+	Controller->UnPossess();
+	Character->Destroy();
+	
+	FActorSpawnParameters PlayerSpawnParameters{};
+	APawn* NewChar = GetWorld()->SpawnActor<APawn>(DefaultPawnClass, FindPlayerStart(Controller,"Human") ? FindPlayerStart(Controller,"Human")->GetActorLocation() : FVector::ZeroVector, FRotator::ZeroRotator, PlayerSpawnParameters);
+	Controller->Possess(NewChar);
 }
 
 void AStuckInsideGameMode::Tick(float DeltaSeconds)
@@ -118,14 +125,32 @@ void AStuckInsideGameMode::Tick(float DeltaSeconds)
 	int WindowsActive = 0;
 	for(AWindowShutters* Window : Windows)
 	{
-		if(!Window->getIsOpened()) WindowsActive++;
+		if(IsValid(Window) && !Window->getIsOpened()) WindowsActive++;
+	}
+
+	TArray<AActor*> FoundActorsA;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStuckInsideCharacter::StaticClass(), FoundActorsA);
+	if(FoundActorsA.Num() <= 0 && GameStarted)
+	{
+		GEngine->AddOnScreenDebugMessage(-1,25,FColor::Red, "ALL PLAYERS DEAD!");
+		bUseSeamlessTravel = true;
+		GetWorld()->ServerTravel(*GetWorld()->GetName(),false,false);
 	}
 
 	GEngine->AddOnScreenDebugMessage(-1,0,FColor::Red,"Power Usage Time: " + FString::SanitizeFloat(Breaker));
 	GEngine->AddOnScreenDebugMessage(-1,0,SIGameState->PowerActive ? FColor::Green : FColor::Red,"POWER");
 
 	WindowsActive = FMath::Clamp(WindowsActive,0,3);
-	if(SIGameState) SIGameState->PowerUsage = WindowsActive;
+	if(SIGameState)
+	{
+		SIGameState->PowerUsage = WindowsActive;
+		SIGameState->currentTime += DeltaSeconds;
+		if(SIGameState->currentTime >= SIGameState->maxTime)
+		{
+			//Game Reset
+			ResetLevel();
+		}
+	}
 
 	if(WindowsActive >= 3)
 	{
@@ -152,7 +177,7 @@ void AStuckInsideGameMode::Tick(float DeltaSeconds)
 
 	//Power Checking
 	bool SwitchIsOn = true;
-	for(ASwitch* s : BreakerSwitches) if(!s->getSideActive()) SwitchIsOn = false;
+	for(ASwitch* s : BreakerSwitches) if(IsValid(s) && !s->getSideActive()) SwitchIsOn = false;
 	if(SwitchIsOn)
 	{
 		SIGameState->PowerActive = true;

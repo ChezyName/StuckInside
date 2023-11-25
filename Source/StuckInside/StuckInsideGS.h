@@ -27,5 +27,11 @@ public:
 	UPROPERTY(Replicated,BlueprintReadWrite)
 	TArray<APlayerState*> HumanPlayers;
 
+	UPROPERTY(Replicated,BlueprintReadOnly)
+	float currentTime = 0;
+
+	UPROPERTY(BlueprintReadOnly)
+	float maxTime = 30*6;
+
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };
