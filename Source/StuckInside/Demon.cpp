@@ -110,8 +110,16 @@ void ADemon::Tick(float DeltaTime)
 			{
 				//Window Is Closed
 				StopChase();
+				for(ADoor* Door : DoorsChewed)
+				{
+					UStaticMeshComponent* DoorMesh = Door->GetDoor();
+					DoorMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+					DoorMesh->SetVisibility(true);
+				}
+				DoorsChewed = TArray<ADoor*>();
 				onDemonDisapear();
 				isOutside = true;
+				onEnterExit(isOutside);
 				PlayDoorClosedSFX();
 				SetActorLocation(SpawnLoc);
 				//setLocation(SpawnLoc);
@@ -125,6 +133,7 @@ void ADemon::Tick(float DeltaTime)
 			{
 				//Has Entered The Building
 				isOutside = false;
+				onEnterExit(isOutside);
 				EnteringBuilding = false;
 
 				//Play Chase SFX
@@ -145,8 +154,16 @@ void ADemon::Tick(float DeltaTime)
 			if(cChaseTime <= 0)
 			{
 				StopChase();
+				for(ADoor* Door : DoorsChewed)
+				{
+					UStaticMeshComponent* DoorMesh = Door->GetDoor();
+					DoorMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+					DoorMesh->SetVisibility(true);
+				}
+				DoorsChewed = TArray<ADoor*>();
 				onDemonDisapear();
 				isOutside = true;
+				onEnterExit(isOutside);
 				SetActorLocation(SpawnLoc);
 				cChaseTime = ChaseTime;
 			}
@@ -264,6 +281,7 @@ void ADemon::Bite_Implementation()
 				UStaticMeshComponent* DoorMesh = DoorObject->GetDoor();
 				DoorMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 				DoorMesh->SetVisibility(false);
+				DoorsChewed.Add(DoorObject);
 				break;
 			}
 
@@ -280,8 +298,15 @@ void ADemon::Bite_Implementation()
 					//Disapear Back To Spawn
 					SetActorLocation(SpawnLoc);
 					StopChase();
+					for(ADoor* Door : DoorsChewed)
+					{
+						UStaticMeshComponent* DoorMesh = Door->GetDoor();
+						DoorMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+						DoorMesh->SetVisibility(true);
+					}
 					onDemonDisapear();
 					isOutside = true;
+					onEnterExit(isOutside);
 					SetActorLocation(SpawnLoc);
 					cChaseTime = ChaseTime;
 					break;
@@ -293,8 +318,10 @@ void ADemon::Bite_Implementation()
 			StopChase();
 			onDemonDisapear();
 			isOutside = true;
+			onEnterExit(isOutside);
 			SetActorLocation(SpawnLoc);
 			cChaseTime = ChaseTime;
+
 		}
 	}
 }
@@ -322,6 +349,11 @@ void ADemon::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+}
+
+void ADemon::onEnterExit_Implementation(bool EnteredExited)
+{
+	EventEnterExit(EnteredExited);
 }
 
 void ADemon::LookUpAtRate(float Rate)

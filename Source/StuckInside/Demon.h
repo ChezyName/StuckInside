@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Door.h"
 #include "WindowShutters.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
@@ -29,6 +30,9 @@ protected:
 
 	UPROPERTY()
 	FVector SpawnLoc;
+
+	UPROPERTY()
+	TArray<ADoor*> DoorsChewed;
 
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MAIN, meta = (AllowPrivateAccess = "true"))
@@ -96,6 +100,12 @@ protected:
 	void MoveRight(float Val);
 	
 	void TurnAtRate(float Rate);
+
+	UFUNCTION(NetMulticast,Reliable)
+	void onEnterExit(bool EnteredExited);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void EventEnterExit(bool EnteredExit);
 
     /**
      * Called via input to turn look up/down at a given rate.
