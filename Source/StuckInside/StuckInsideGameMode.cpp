@@ -43,13 +43,20 @@ void AStuckInsideGameMode::ResetGame()
 		{
 			GEngine->AddOnScreenDebugMessage(-1,25,FColor::Yellow, Controller->GetName());
 			Players.Add(Controller);
-			FActorSpawnParameters PlayerSpawnParameters{};
-			APawn* NewChar = GetWorld()->SpawnActor<APawn>(LobbyClass, FindPlayerStart(Controller,"None") ? FindPlayerStart(Controller,"None")->GetActorLocation() : FVector::ZeroVector, FRotator::ZeroRotator, PlayerSpawnParameters);
-			if(Controller->GetPawn())
+
+			APawn* NewChar = Cast<APawn>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this,LobbyClass,FTransform(FRotator::ZeroRotator,FindPlayerStart(Controller,"None") ? FindPlayerStart(Controller,"None")->GetActorLocation() : FVector::ZeroVector),ESpawnActorCollisionHandlingMethod::AlwaysSpawn,Controller));
+			if(NewChar != nullptr)
 			{
-				Controller->GetPawn()->Destroy();
+				
+				//Finalizing Create Projecitle
+				if(Controller->GetPawn())
+				{
+					Controller->GetPawn()->Destroy();
+				}
+				Controller->Possess(NewChar);
+				//Spawn The Actor
+				UGameplayStatics::FinishSpawningActor(NewChar, FTransform(FRotator::ZeroRotator,FindPlayerStart(Controller,"None") ? FindPlayerStart(Controller,"None")->GetActorLocation() : FVector::ZeroVector));
 			}
-			Controller->Possess(NewChar);
 		}
 	}
 
