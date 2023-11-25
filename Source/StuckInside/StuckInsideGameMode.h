@@ -18,17 +18,24 @@ class AStuckInsideGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 	float Breaker = 1.f;
+	bool GameStarted = false;
 
 public:
 	AStuckInsideGameMode();
-
 	UPROPERTY(EditAnywhere)
-	AStuckInsideCharacter* Survivors;
+	TSubclassOf<APawn> LobbyClass;
 	UPROPERTY(EditAnywhere)
-	ADemon* Demon;
+	TSubclassOf<AStuckInsideCharacter> Survivors;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ADemon> Demon;
 
 	UPROPERTY(EditAnywhere)
 	float MaxPowerUsageTimeBeforeBreaker = 1.5f;
+
+	UFUNCTION(Server,Reliable)
+	void onAllPlayersReady();
+
+	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
 	UPROPERTY()
 	AStuckInsideGS* SIGameState;

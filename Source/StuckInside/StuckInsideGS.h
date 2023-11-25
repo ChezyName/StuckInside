@@ -21,5 +21,11 @@ public:
 	UPROPERTY(BlueprintReadOnly,Replicated)
 	bool PowerActive = true;
 
+	UPROPERTY(Replicated,BlueprintReadWrite)
+	APlayerState* DemonPlayer;
+
+	UPROPERTY(Replicated,BlueprintReadWrite)
+	TArray<APlayerState*> HumanPlayers;
+
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

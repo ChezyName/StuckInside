@@ -20,6 +20,31 @@ AStuckInsideGameMode::AStuckInsideGameMode()
 	//HUDClass = AStuckInsideHUD::StaticClass();
 }
 
+void AStuckInsideGameMode::onAllPlayersReady_Implementation()
+{
+	GameStarted = true;
+
+	//PlayersPick Spawn
+}
+
+void AStuckInsideGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+    UE_LOG(LogTemp, Warning, TEXT("Spawning New player"));
+	FVector StartLocation =  ChoosePlayerStart(NewPlayer) ? ChoosePlayerStart(NewPlayer)->GetActorLocation() : FVector::ZeroVector;
+	if(GameStarted)
+	{
+		FActorSpawnParameters PlayerSpawnParameters{};
+		APawn* NewChar = GetWorld()->SpawnActor<APawn>(DefaultPawnClass, StartLocation, FRotator::ZeroRotator, PlayerSpawnParameters);
+		NewPlayer->Possess(NewChar);
+	}
+	else
+	{
+		FActorSpawnParameters PlayerSpawnParameters{};
+		APawn* NewChar = GetWorld()->SpawnActor<APawn>(LobbyClass, StartLocation, FRotator::ZeroRotator, PlayerSpawnParameters);
+		NewPlayer->Possess(NewChar);
+	}
+}
+
 void AStuckInsideGameMode::BeginPlay()
 {
 	SIGameState = GetGameState<AStuckInsideGS>();
