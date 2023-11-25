@@ -14,7 +14,8 @@ void AStuckInsideGameMode::ResetGame()
 {
 	GameStarted = false;
 	SIGameState->currentTime = 0;
-	SIGameState->DemonPlayer = nullptr;
+	//SIGameState->DemonPlayer = nullptr;
+	//SIGameState->HumanPlayers = TArray<APlayerState*>();
 	SIGameState->PowerActive = true;
 	SIGameState->PowerUsage = 0;
 
@@ -41,10 +42,11 @@ void AStuckInsideGameMode::ResetGame()
 	{
 		if(Controller)
 		{
-			GEngine->AddOnScreenDebugMessage(-1,25,FColor::Yellow, Controller->GetName());
+			GEngine->AddOnScreenDebugMessage(-1,25,FColor::Yellow, Controller->GetName()
+				+ " - " + Controller->GetPawn()->GetName());
 			Players.Add(Controller);
 
-			APawn* NewChar = Cast<APawn>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this,LobbyClass,FTransform(FRotator::ZeroRotator,FindPlayerStart(Controller,"None") ? FindPlayerStart(Controller,"None")->GetActorLocation() : FVector::ZeroVector),ESpawnActorCollisionHandlingMethod::AlwaysSpawn,Controller));
+			APawn* NewChar = Cast<APawn>(UGameplayStatics::BeginDeferredActorSpawnFromClass(GetWorld(),LobbyClass,FTransform(FRotator::ZeroRotator,FindPlayerStart(Controller,"None") ? FindPlayerStart(Controller,"None")->GetActorLocation() : FVector::ZeroVector),ESpawnActorCollisionHandlingMethod::AlwaysSpawn,Controller));
 			if(NewChar != nullptr)
 			{
 				
