@@ -12,5 +12,6 @@ void AStuckInsideGS::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AStuckInsideGS,DemonPlayer);
 	DOREPLIFETIME(AStuckInsideGS,HumanPlayers);
 	DOREPLIFETIME(AStuckInsideGS,currentTime);
+	DOREPLIFETIME(AStuckInsideGS,DemonWon);
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }

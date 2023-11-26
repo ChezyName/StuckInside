@@ -179,6 +179,7 @@ void AStuckInsideGameMode::KillPlayer(AStuckInsideCharacter* Character)
 	if(FoundActorsA.Num() <= 0)
 	{
 		GEngine->AddOnScreenDebugMessage(-1,25,FColor::Red, "ALL PLAYERS DEAD!");
+		if(SIGameState) SIGameState->DemonWon = true;
 		ResetGame();
 	}
 }
@@ -202,6 +203,7 @@ void AStuckInsideGameMode::Tick(float DeltaSeconds)
 		if(SIGameState->currentTime >= SIGameState->maxTime)
 		{
 			//Game Reset
+			if(SIGameState) SIGameState->DemonWon = false;
 			ResetGame();
 		}
 	}

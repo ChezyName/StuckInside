@@ -33,5 +33,8 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float maxTime = 30*6;
 
+	UPROPERTY(Replicated,BlueprintReadOnly)
+	bool DemonWon = true;
+
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };
